@@ -1,0 +1,1 @@
+C:\Users\Aaron\Desktop\Miner\applications\XPlotter.v1.0\XPlotter_avx.exe -id 13879968218494545 -sn 3600897025 -n 4096 -t 8 -path C:\Burst\plots

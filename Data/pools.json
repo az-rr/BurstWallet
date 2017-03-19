@@ -1,0 +1,70 @@
+{
+	"pool": [
+		{
+			"name": "Burst Mining Club",
+			"url":"pool.burstmining.club",
+			"port":"8124",
+			"account":"BURST-RNMB-9FJW-3BJW-F3Z3M",
+			"id":"15674744673246368361"
+		},
+		{
+			"name": "Burst Ninja",
+			"url":"burst.ninja",
+			"port":"8124",
+			"account":"BURST-7CPJ-BW8N-U4XF-CWW3UC",
+			"id":"12468105956737329840"
+		},
+		{
+			"name": "Burstcoin Biz",
+			"url":"pool.burstcoin.biz",
+			"port":"8124",
+			"account":"BURST-6WVW-2WVD-YXE5-EZBHU",
+			"id":"14789046051569562492"
+		},
+		{
+			"name": "Burstcoin EU",
+			"url":"pool.burstcoin.eu",
+			"port":"8124",
+			"account":"BURST-7Z2V-J9CF-NCW9-HWFRY",
+			"id":"18401070918313114651"
+		},
+		{
+			"name": "Burstcoin ML",
+			"url":"pool.burstcoin.ml",
+			"port":"8020",
+			"account":"BURST-67XA-W9AU-MFGE-DAPPG",
+			"id":"13210932244776097704"
+		},
+		{
+			"name": "Lexitoshi",
+			"url":"burst.lexitoshi.uk",
+			"port":"8124",
+			"account":"BURST-F3XD-Y4M5-SN8C-G9FFJ",
+			"id":"16732464642587527083"
+		},
+		{
+			"name": "tross Burstcoin Pool",
+			"url":"burstpool.ddns.net",
+			"port":"8124",
+			"account":"BURST-JGBV-U7YK-SWHM-4P4QS",
+			"id":"3195398293854632251"
+		},
+		{
+			"name": "Burstcoin SK",
+			"url":"pool.burstcoin.sk",
+			"port":"8124",
+			"account":"BURST-NACG-ZZDB-BHX7-9ELAF",
+			"id":"8548479704403419470"
+		},
+		{
+			"name": "Burst4all",
+			"url":"m.burst4all.com",
+			"port":"8124",
+			"account":"BURST-ZDKQ-BK92-67A5-DGENX",
+			"id":"13749927595717144118"
+		}
+	]
+}
+
+
+

@@ -1,0 +1,23 @@
+{
+  "name": "BurstWallet",
+  "version": "1.0.0",
+  "scripts": {
+    "pack": "electron-packager . BurstWallet --arch=x64 --out ./build --overwrite --icon=icons/icon.ico",
+    "createdir": "cd build/BurstWallet-win32-x64 && mkdir applications",
+    "copy": "xcopy \"%cd%/applications\" \"%cd%/build/BurstWallet-win32-x64/applications\" /s /e /y",
+    "rename": "cd build && rename BurstWallet-win32-x64 BurstWallet-x64-1.0.0",
+    "build": "npm run pack && npm run rename"
+  },
+  "main": "app/main.js",
+  "devDependencies": {
+    "electron": "^1.6.2",
+    "electron-packager": "^8.5.2",
+    "electron-rebuild": "^1.5.7"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "electron-reload": "^1.1.0",
+    "jquery": "^3.1.1",
+    "diskusage": "0.2.1"
+  }
+}

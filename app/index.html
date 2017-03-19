@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Burst Wallet</title>
+	<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<webview id="wallet_view" src=""></webview>
+
+<div id="footer_bar">
+	<ul class="">
+		<li id="stats_price"></li>
+		<li id="stats_vol"></li>
+		<li id="stats_1hr"></li>
+		<li id="stats_24hr"></li>
+		<li id="stats_1d"></li>
+	</ul>
+</div>
+
+<div class="container">
+
+	<!-- PLOTTING -->
+	<div class="modal fade" id="plotModal" role="dialog">
+
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+
+				<div class="modal-header modal-header-primary">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Plot Burst</h4>
+				</div>
+
+				<div class="modal-body">
+
+					<form class="form-horizontal">
+
+						<div class="form-group">
+
+							<label for="drive_locations" class="col-sm-2 control-label">Pool Url</label>
+							<div class="col-sm-10">
+								<select class="form-control" id="drive_locations"></select>
+					    	</div>
+						</div>
+
+						<div class="col-sm-offset-2 col-sm-10">
+							<p>Disk size: <span class="total_space">0</span>, Free Space:<span class="free_space">0</span></p>
+				    	</div>
+
+				    	<div class="form-group">
+							<label for="plot_size" class="col-sm-2 control-label">Plot Size (GB)</label>
+							<div class="col-sm-10">
+								<input type="number" class="form-control" id="plot_size" placeholder="0">
+							</div>
+						</div>
+						
+						
+						<div class="form-group">
+							<label for="port" class="col-sm-2 control-label">Burst Address</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="burst_address" placeholder="">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="burst_id" class="col-sm-2 control-label">Burst ID</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="burst_id" placeholder="" disabled>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="start_nonce" class="col-sm-2 control-label">Start Nonce</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="start_nonce" placeholder="" disabled>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="nonces_count" class="col-sm-2 control-label">Number of Nonces</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="nonces_count" placeholder="" disabled>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="thread_count" class="col-sm-2 control-label">Threads</label>
+							<div class="col-sm-10">
+								<select class="form-control" id="thread_count"></select>
+							</div>
+						</div>
+						
+					</form>
+
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-default btn-primary plot">Start Plotting</button>
+				</div>
+			
+			</div>
+		</div>
+	</div>
+
+	<!-- MINING -->
+	<div class="modal fade" id="mineModal" role="dialog">
+
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+
+				<div class="modal-header modal-header-primary">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Mine Burst</h4>
+				</div>
+
+				<div class="modal-body">
+
+
+					<form class="form-horizontal">
+
+						<div class="form-group">
+							<label for="port" class="col-sm-2 control-label">Plots</label>
+					   		<div class="col-sm-10">
+								<ul class="list-group" id="plot_locations"></ul>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="port" class="col-sm-2 control-label">Burst Address</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="burst_address_mine" placeholder="">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="burst_id" class="col-sm-2 control-label">Burst ID</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="burst_id_mine" placeholder="" disabled>
+							</div>
+						</div>
+
+						<div class="form-group">
+
+							<label for="pool_url" class="col-sm-2 control-label">Pool Url</label>
+							<div class="col-sm-10">
+								<select class="form-control" id="pool_url"></select>
+					    	</div>
+						</div>
+						<div class="form-group">
+							<label for="port" class="col-sm-2 control-label">Port</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="pool_port" placeholder="8000">
+							</div>
+						</div>
+						
+					</form>
+
+
+
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-default btn-primary start_mining_cpu">Start Mining (CPU)</button>
+					<button type="submit" class="btn btn-default btn-primary start_mining_gpu">Start Mining (GPU)</button>
+				</div>
+			
+			</div>
+		</div>
+	</div>
+
+	<!-- Preferences -->
+	<div class="modal fade" id="prefsModal" role="dialog">
+
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+
+				<div class="modal-header modal-header-primary">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Preferences</h4>
+				</div>
+
+				<div class="modal-body">
+
+
+					<form class="form-horizontal">
+
+						<div class="form-group">
+
+							<label class="col-sm-2 control-label">Default Wallet</label>
+
+							<div class="col-sm-10">
+								<div class="radio">
+									<label>
+										<input type="radio" name="wallet_url" id="0" data-url="https://wallet1.burstnation.com:8125">
+										Wallet 1 - Canada
+									</label>
+								</div>
+
+								<div class="radio">
+									<label>
+										<input type="radio" name="wallet_url" id="1" data-url="https://wallet2.burstnation.com:8125">
+										Wallet 2 - Canada
+									</label>
+								</div>
+
+								<div class="radio">
+									<label>
+										<input type="radio" name="wallet_url" id="2" data-url="https://wallet3.burstnation.com:8125">
+										Wallet 3 - France
+									</label>
+								</div>
+
+								<div class="radio">
+									<label>
+										<input type="radio" name="wallet_url" id="3" data-url="https://wallet4.burstnation.com:8125">
+										Wallet 4 - USA
+									</label>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="form-group">
+
+							<label class="col-sm-2 control-label">Options</label>
+							
+							<div class="col-sm-10">
+								
+								<!-- <div class="checkbox">
+									<label>
+										<input type="checkbox" id="show_notifications">
+										Show Notifications
+									</label>
+								</div> -->
+
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" id="show_debug">
+										Show Debug Menu (requires restart)
+									</label>
+								</div>
+
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" id="show_power_block_save">
+										Block Power Save (requires restart)
+									</label>
+								</div>
+
+							</div>
+
+
+
+						</div>
+
+					</form>
+
+
+
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-default btn-primary save_pref">Save</button>
+				</div>
+			
+			</div>
+		</div>
+	</div>
+
+	<!-- About -->
+	<div class="modal fade" id="aboutModal" role="dialog">
+
+		<div class="modal-dialog">
+
+			<div class="modal-content">
+
+				<div class="modal-header modal-header-primary">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">About</h4>
+				</div>
+
+				<div class="modal-body">
+
+			    	<h3 class="text-center about_copy">Burst Wallet 1.0.0</h3>
+			        <p class="text-center about_copy">Created by Wombat<br><span class="selectable">BURST-JFLK-S9RL-SAS4-2HCE2</span></p>
+			        <p class="text-center about_copy">Plotter: miner-burst-1.160705<br>CPU Miner: XPlotter.v1.0<br>GPU Minier: burstcoin-jminer-0.4.8-RELEASE</p>
+					
+
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<script src="js/render.js"></script>
+</body>
+</html>
