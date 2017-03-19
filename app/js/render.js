@@ -13,6 +13,8 @@ const store = remote.getGlobal('store')
 
 var path = require("path");
 
+var miningType = 'pool';
+
 //Wallet webview
 ipcRenderer.on('loadWalletView', function(event, url) {
 	$('#wallet_view').attr('src', url);
@@ -90,7 +92,7 @@ function setCurrentPref()
 {
 
 	let { id, url } = store.get('onlineWallet');
-	let { showNotifications, showDebug, blockPower } = store.get('prefs');
+	let { showDebug, blockPower } = store.get('prefs');
 
 	//set the current wallet
 	document.getElementById(id).checked = true;
@@ -140,11 +142,16 @@ function showMiningModal()
 	//find all drives that have burst
 	getDrives(mineDriveCallback);
 
-	let {burstAddress, burstId} = store.get('prefs');
+	let {burstAddress, burstId} = store.get('pool');
+	let {soloPass} = store.get('solo');
+
+	var type = $('.mine_type input[type=radio]:checked').val();
+	console.log('mining type set to: ' + type);
+    setMiningType(type);
 	
+	$('#solo_pass').val(soloPass);
 	$('#burst_id_mine').val(burstId);
 	$('#burst_address_mine').val(burstAddress);
-	
 
 	$('#mineModal').modal("show");
 
@@ -258,24 +265,44 @@ $('#pool_url').on('change', function(){
 
 $('.start_mining_gpu').on('click', function(){
 
-	var pool = $('#pool_url').val();
-
 	if(validateMining())
 	{
-		var id = $('#burst_id_mine').val();
-		createGPUMinerConf(id, pool);
+
+		if(miningType == 'pool')
+		{
+			var pool = $('#pool_url').val();
+			var id = $('#burst_id_mine').val();
+			createGPUMinerConf(id, pool, null);
+		}
+		else if(miningType == 'solo')
+		{
+			var soloPass = $('#solo_pass').val();
+			store.set('solo', { soloPass });
+			createGPUMinerConf(null, null, soloPass);
+		}
+
 	}
 	
 });
 
 $('.start_mining_cpu').on('click', function(){
 
-	var pool = $('#pool_url').val();
-	var port = $('#pool_port').val();
-
 	if(validateMining())
 	{
-		createCPUMinerConf(pool, port);
+		
+		if(miningType == 'pool')
+		{
+			var pool = $('#pool_url').val();
+			var port = $('#pool_port').val();
+			createCPUMinerConf(pool, port, null);
+		}
+		else if(miningType == 'solo')
+		{
+			var soloPass = $('#solo_pass').val();
+			store.set('solo', { soloPass });
+			createCPUMinerConf(null, null, soloPass);
+		}
+		
 	}
 
 });
@@ -290,36 +317,52 @@ function validateMining()
 		console.log('No plots found');
 		pass = false;
 	}
-	if(!$("#pool_url").val())
-	{
-		console.log('Please enter a pool url');
-		$('#pool_url').parent().parent().addClass('has-error');
-		pass = false;
-	}
-	if(!$("#pool_port").val())
-	{
-		console.log('Please enter a port number');
-		$('#pool_port').parent().parent().addClass('has-error');
-		pass = false;
-	}
-	if(!$("#burst_id_mine").val())
-	{
-		console.log('Please enter you burst ID');
-		$('#burst_id_mine').parent().parent().addClass('has-error');
-		pass = false;
-	}
-	var str1 = $("#burst_id_mine").val();
 
-	if(str1.indexOf('Loading') != -1){
-    	console.log('Please enter you burst ID');
-		$('#burst_id_mine').parent().parent().addClass('has-error');
-		pass = false;
-	}
 
-	if(str1.indexOf('Error') != -1){
-    	console.log('Please enter you burst ID');
-		$('#burst_id_mine').parent().parent().addClass('has-error');
-		pass = false;
+	if(miningType == 'pool')
+	{
+
+		if(!$("#pool_url").val())
+		{
+			console.log('Please enter a pool url');
+			$('#pool_url').parent().parent().addClass('has-error');
+			pass = false;
+		}
+		if(!$("#pool_port").val())
+		{
+			console.log('Please enter a port number');
+			$('#pool_port').parent().parent().addClass('has-error');
+			pass = false;
+		}
+		if(!$("#burst_id_mine").val())
+		{
+			console.log('Please enter you burst ID');
+			$('#burst_id_mine').parent().parent().addClass('has-error');
+			pass = false;
+		}
+		var str1 = $("#burst_id_mine").val();
+
+		if(str1.indexOf('Loading') != -1){
+	    	console.log('Please enter you burst ID');
+			$('#burst_id_mine').parent().parent().addClass('has-error');
+			pass = false;
+		}
+
+		if(str1.indexOf('Error') != -1){
+	    	console.log('Please enter you burst ID');
+			$('#burst_id_mine').parent().parent().addClass('has-error');
+			pass = false;
+		}
+
+	}
+	else
+	{
+		if(!$("#solo_pass").val())
+		{
+			console.log('Please enter your pass phrase');
+			$('#solo_pass').parent().parent().addClass('has-error');
+			pass = false;
+		}
 	}
 
 	return pass;
@@ -334,10 +377,14 @@ $( "#pool_port" ).focus(function() {
 	$('#pool_port').parent().parent().removeClass('has-error');
 });
 
+$( "#solo_pass" ).focus(function() {
+	$('#solo_pass').parent().parent().removeClass('has-error');
+});
 
 
 
-function createCPUMinerConf(pool, port)
+
+function createCPUMinerConf(pool, port, pass)
 {
 
 	//add extra slash
@@ -346,42 +393,91 @@ function createCPUMinerConf(pool, port)
 		console.log(burstPathArray[i]);
 	}
 
+	var isSolo = (!!pass) ? true : false;
+
 	var string = '{' + '\n';
-	string = string + '"Mode" : "pool",' + '\n';
-	string = string + '"Server" : "'+pool+'",' + '\n';
-	string = string + '"Port" : '+port+',' + '\n';
-	string = string + '' + '\n';
-	string = string + '"UpdaterAddr" : "'+pool+'",' + '\n';
-	string = string + '"UpdaterPort" : '+port+',' + '\n';
-	string = string + '' + '\n';
-	string = string + '"InfoAddr" : "'+pool+'",' + '\n';
-	string = string + '"InfoPort" : '+port+',' + '\n';
-	string = string + '' + '\n';
-	string = string + '"EnableProxy" : false,' + '\n';
-	string = string + '"ProxyPort" : 8126,' + '\n';
-	string = string + '"Paths":' + '\n';
-	string = string + '[' + '\n';
-	string = string + burstPathArray + '\n';
-	string = string + '],' + '\n';
-	string = string + '"CacheSize" : 100000,' + '\n';
-	string = string + '"ShowMsg" : false,' + '\n';
-	string = string + '"ShowUpdates" : false,' + '\n';
-	string = string + '"Debug" : true,' + '\n';
-	string = string + '' + '\n';
-	string = string + '"SendBestOnly" : true,' + '\n';
-	string = string + '"TargetDeadline": 6048000,' + '\n';
-	string = string + '' + '\n';
-	string = string + '"UseFastRcv" : false,' + '\n';
-	string = string + '"SendInterval" : 100,' + '\n';
-	string = string + '"UpdateInterval" : 950,' + '\n';
-	string = string + '' + '\n';
-	string = string + '"UseLog" : true,' + '\n';
-	string = string + '"ShowWinner" : false,' + '\n';
-	string = string + '"UseBoost" : false,' + '\n';
-	string = string + '' + '\n';
-	string = string + '"WinSizeX" : 80,' + '\n';
-	string = string + '"WinSizeY" : 60' + '\n';
-	string = string + '}' + '\n';
+
+	if(isSolo)
+	{
+		string = string + '"Mode" : "solo",' + '\n';
+		string = string + '"Server" : "127.0.0.1",' + '\n';
+		string = string + '"Port" : 8125,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"UpdaterAddr" : "127.0.0.1",' + '\n';
+		string = string + '"UpdaterPort" : 8125,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"InfoAddr" : "127.0.0.1",' + '\n';
+		string = string + '"InfoPort" : 8125,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"EnableProxy" : false,' + '\n';
+		string = string + '"ProxyPort" : 8126,' + '\n';
+		string = string + '"Paths":' + '\n';
+		string = string + '[' + '\n';
+		string = string + burstPathArray + '\n';
+		string = string + '],' + '\n';
+		string = string + '"CacheSize" : 100000,' + '\n';
+		string = string + '"ShowMsg" : false,' + '\n';
+		string = string + '"ShowUpdates" : false,' + '\n';
+		string = string + '"Debug" : true,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"SendBestOnly" : true,' + '\n';
+		string = string + '"TargetDeadline": 6048000,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"UseFastRcv" : false,' + '\n';
+		string = string + '"SendInterval" : 100,' + '\n';
+		string = string + '"UpdateInterval" : 950,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"UseLog" : true,' + '\n';
+		string = string + '"ShowWinner" : false,' + '\n';
+		string = string + '"UseBoost" : false,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"WinSizeX" : 80,' + '\n';
+		string = string + '"WinSizeY" : 60' + '\n';
+		string = string + '}' + '\n';
+	}
+	else
+	{
+
+		string = string + '"Mode" : "pool",' + '\n';
+		string = string + '"Server" : "'+pool+'",' + '\n';
+		string = string + '"Port" : '+port+',' + '\n';
+		string = string + '' + '\n';
+		string = string + '"UpdaterAddr" : "'+pool+'",' + '\n';
+		string = string + '"UpdaterPort" : '+port+',' + '\n';
+		string = string + '' + '\n';
+		string = string + '"InfoAddr" : "'+pool+'",' + '\n';
+		string = string + '"InfoPort" : '+port+',' + '\n';
+		string = string + '' + '\n';
+		string = string + '"EnableProxy" : false,' + '\n';
+		string = string + '"ProxyPort" : 8126,' + '\n';
+		string = string + '"Paths":' + '\n';
+		string = string + '[' + '\n';
+		string = string + burstPathArray + '\n';
+		string = string + '],' + '\n';
+		string = string + '"CacheSize" : 100000,' + '\n';
+		string = string + '"ShowMsg" : false,' + '\n';
+		string = string + '"ShowUpdates" : false,' + '\n';
+		string = string + '"Debug" : true,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"SendBestOnly" : true,' + '\n';
+		string = string + '"TargetDeadline": 6048000,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"UseFastRcv" : false,' + '\n';
+		string = string + '"SendInterval" : 100,' + '\n';
+		string = string + '"UpdateInterval" : 950,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"UseLog" : true,' + '\n';
+		string = string + '"ShowWinner" : false,' + '\n';
+		string = string + '"UseBoost" : false,' + '\n';
+		string = string + '' + '\n';
+		string = string + '"WinSizeX" : 80,' + '\n';
+		string = string + '"WinSizeY" : 60' + '\n';
+		string = string + '}' + '\n';
+
+	}
+
+	
+	
 
 	var minerConf = path.join(__dirname, '/../', 'applications', 'miner-burst-1.160705', 'miner.conf');
 
@@ -408,7 +504,7 @@ function spawnCPUMiner()
 	})  
 }
 
-function createGPUMinerConf(id, pool)
+function createGPUMinerConf(id, pool, pass)
 {
 
 	var p = '';
@@ -417,25 +513,56 @@ function createGPUMinerConf(id, pool)
 
 	}
 
+	var isSolo = (!!pass) ? true : false;
+
 	var string = '';
-	string = string + 'plotPaths=' + p + '\n';
-	string = string + 'poolMining=true' + '\n';
-	string = string + 'numericAccountId=' + id + '\n';
-	string = string + 'poolServer=http://' + pool + '\n';
-	string = string + 'walletServer=' + '\n';
-	string = string + 'winnerRetriesOnAsync=' + '\n';
-	string = string + 'winnerRetryIntervalInMs=' + '\n';
-	string = string + 'devPool=' + '\n';
-	string = string + 'devPoolCommitsPerRound=' + '\n';
-	string = string + 'soloServer=http://localhost:8125' + '\n';
-	string = string + 'passPhrase=xxxxxxxxxxxxxx' + '\n';
-	string = string + 'targetDeadline=' + '\n';
-	string = string + 'platformId=0' + '\n';
-	string = string + 'deviceId=0' + '\n';
-	string = string + 'restartInterval=240' + '\n';
-	string = string + 'chunkPartNonces=320000' + '\n';
-	string = string + 'refreshInterval=2000' + '\n';
-	string = string + 'connectionTimeout=6000' + '\n';
+	if(isSolo)
+	{
+		console.log('Begin solo mining');
+
+		string = string + 'plotPaths=' + p + '\n';
+		string = string + 'poolMining=false' + '\n';
+		string = string + 'numericAccountId=' + '\n';
+		string = string + 'poolServer=' + '\n';
+		string = string + 'walletServer=' + '\n';
+		string = string + 'winnerRetriesOnAsync=' + '\n';
+		string = string + 'winnerRetryIntervalInMs=' + '\n';
+		string = string + 'devPool=' + '\n';
+		string = string + 'devPoolCommitsPerRound=' + '\n';
+		string = string + 'soloServer=http://localhost:8125' + '\n';
+		string = string + 'passPhrase=' + pass + '\n';
+		string = string + 'targetDeadline=' + '\n';
+		string = string + 'platformId=0' + '\n';
+		string = string + 'deviceId=0' + '\n';
+		string = string + 'restartInterval=240' + '\n';
+		string = string + 'chunkPartNonces=320000' + '\n';
+		string = string + 'refreshInterval=2000' + '\n';
+		string = string + 'connectionTimeout=6000' + '\n';
+	}
+	else
+	{
+		console.log('Begin pool mining');
+		
+		string = string + 'plotPaths=' + p + '\n';
+		string = string + 'poolMining=true' + '\n';
+		string = string + 'numericAccountId=' + id + '\n';
+		string = string + 'poolServer=http://' + pool + '\n';
+		string = string + 'walletServer=' + '\n';
+		string = string + 'winnerRetriesOnAsync=' + '\n';
+		string = string + 'winnerRetryIntervalInMs=' + '\n';
+		string = string + 'devPool=' + '\n';
+		string = string + 'devPoolCommitsPerRound=' + '\n';
+		string = string + 'soloServer=http://localhost:8125' + '\n';
+		string = string + 'passPhrase=xxxxxxxxxxxxxx' + '\n';
+		string = string + 'targetDeadline=' + '\n';
+		string = string + 'platformId=0' + '\n';
+		string = string + 'deviceId=0' + '\n';
+		string = string + 'restartInterval=240' + '\n';
+		string = string + 'chunkPartNonces=320000' + '\n';
+		string = string + 'refreshInterval=2000' + '\n';
+		string = string + 'connectionTimeout=6000' + '\n';
+
+	}
 
 	var minerProps = path.join(__dirname, '/../', 'applications', 'burstcoin-jminer-0.4.8-RELEASE', 'jminer.properties');
 	console.log(minerProps);
@@ -473,7 +600,7 @@ function showPlottingModal()
 	//find all drives that have burst
 	getDrives(plotDriveCallback);
 
-	let {burstAddress, burstId} = store.get('prefs');
+	let {burstAddress, burstId} = store.get('pool');
 	
 	$('#burst_id').val(burstId);
 	$('#burst_address').val(burstAddress);
@@ -603,7 +730,7 @@ $('#burst_address_mine').on('input',function(e){
 			{
 				var burstAddress = $('#burst_address_mine').val();
 				var burstId = json.account;
-				store.set('prefs', { burstAddress, burstId });
+				store.set('pool', { burstAddress, burstId });
 				$('#burst_id_mine').val(json.account);
 			}
 		})
@@ -641,7 +768,7 @@ $('#burst_address').on('input',function(e){
 			{
 				var burstAddress = $('#burst_address').val();
 				var burstId = json.account;
-				store.set('prefs', { burstAddress, burstId });
+				store.set('pool', { burstAddress, burstId });
 				$('#burst_id').val(json.account);
 			}
 		})
@@ -741,7 +868,7 @@ $('.plot').click(function(){
 	if(error) return;
 
 	//save details
-	store.set('prefs', { burstAddress, burstId });
+	store.set('pool', { burstAddress, burstId });
 
 	//start plotting
 	spawnCPUPlotter($('#burst_id').val(), $('#start_nonce').val(), $('#nonces_count').val(), $('#thread_count').val(),currentDrive.toString());
@@ -785,3 +912,30 @@ $('.selectable').click(function(){
 
 
 
+$('.mine_type input[type=radio]').on('change', function() {
+    console.log(this.value);
+    setMiningType(this.value);
+});
+
+function setMiningType(type)
+{
+	miningType = type;
+	if(miningType == 'pool')
+    {
+    	$('.solo_element').each(function(){
+    		$(this).hide();
+    	});
+    	$('.pool_element').each(function(){
+    		$(this).show();
+    	});
+    }
+    else if(miningType == 'solo')
+    {
+    	$('.pool_element').each(function(){
+    		$(this).hide();
+    	});
+    	$('.solo_element').each(function(){
+    		$(this).show();
+    	});
+    }
+}

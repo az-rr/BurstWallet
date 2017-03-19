@@ -12,13 +12,15 @@ const Store = require('./store.js');
 // let tray = null;
 var appWindow;
 
-// instantiate our user preferences
+// instantiate our user preferences3
 global.store = new Store({
   configName: 'user-preferences',
   defaults: {
     windowBounds: { width: 850, height: 600 },
     onlineWallet: { id: 0, url: 'https://wallet1.burstnation.com:8125'},
-    prefs: { showDebug: false, blockPower: false, burstAddress: false, burstId: false }
+    prefs: { showDebug: false, blockPower: false },
+    pool: { burstAddress: '', burstId: '' },
+    solo: { soloPass: '' }
   }
 });
 
@@ -113,7 +115,8 @@ const selectionMenu = Menu.buildFromTemplate([
   
 
 //load our prefs
-let { showDebug, blockPower, burstAddress, burstId } = store.get('prefs');
+let { showDebug, blockPower } = store.get('prefs');
+let { burstAddress, burstId } = store.get('pool');
 let { width, height } = store.get('windowBounds');
 let { id, url } = store.get('onlineWallet');
 

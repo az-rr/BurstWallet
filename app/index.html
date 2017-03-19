@@ -122,37 +122,60 @@
 					<form class="form-horizontal">
 
 						<div class="form-group">
+							<label for="port" class="col-sm-2 control-label">Type</label>
+							
+							<div class="col-sm-10">
+								<div class="btn-group mine_type" data-toggle="buttons">
+								
+									<label class="btn btn-default active">
+										<input type="radio" name="options" value="pool" autocomplete="off" checked> Pool
+									</label>
+									<label class="btn btn-default">
+										<input type="radio" name="options" value="solo" autocomplete="off"> Solo
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
 							<label for="port" class="col-sm-2 control-label">Plots</label>
 					   		<div class="col-sm-10">
 								<ul class="list-group" id="plot_locations"></ul>
 							</div>
 						</div>
 
-						<div class="form-group">
+						<div class="form-group pool_element">
 							<label for="port" class="col-sm-2 control-label">Burst Address</label>
 							<div class="col-sm-10">
 								<input type="text" class="form-control" id="burst_address_mine" placeholder="">
 							</div>
 						</div>
 
-						<div class="form-group">
+						<div class="form-group pool_element">
 							<label for="burst_id" class="col-sm-2 control-label">Burst ID</label>
 							<div class="col-sm-10">
 								<input type="text" class="form-control" id="burst_id_mine" placeholder="" disabled>
 							</div>
 						</div>
 
-						<div class="form-group">
+						<div class="form-group pool_element">
 
 							<label for="pool_url" class="col-sm-2 control-label">Pool Url</label>
 							<div class="col-sm-10">
 								<select class="form-control" id="pool_url"></select>
 					    	</div>
 						</div>
-						<div class="form-group">
+						<div class="form-group pool_element">
 							<label for="port" class="col-sm-2 control-label">Port</label>
 							<div class="col-sm-10">
 								<input type="text" class="form-control" id="pool_port" placeholder="8000">
+							</div>
+						</div>
+
+						<div class="form-group solo_element">
+							<label for="port" class="col-sm-2 control-label">Pass Phrase</label>
+							<div class="col-sm-10">
+								<input type="password" class="form-control" id="solo_pass" placeholder="">
 							</div>
 						</div>
 						

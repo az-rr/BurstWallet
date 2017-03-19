@@ -47,3 +47,4 @@ typings/
 
 # dotenv environment variables file
 .env
+applications/burstcoin-jminer-0.4.8-RELEASE/jminer.properties
