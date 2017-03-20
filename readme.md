@@ -19,6 +19,12 @@ If you find any bugs or want some features added let me know. Just open an issue
 See the releases here. 
 [https://github.com/wombatt/BurstWallet/releases](https://github.com/wombatt/BurstWallet/releases)
 
+### Screenshots
+![SS1](https://raw.githubusercontent.com/wombatt/BurstWallet/master/screens/1.jpg)
+![SS2](https://raw.githubusercontent.com/wombatt/BurstWallet/master/screens/2.jpg)
+![SS3](https://raw.githubusercontent.com/wombatt/BurstWallet/master/screens/3.jpg)
+![SS4](https://raw.githubusercontent.com/wombatt/BurstWallet/master/screens/4.jpg)
+
 ### Tech
 The wallet uses a number of projects to work properly:
 - Plotter: miner-burst-1.160705
