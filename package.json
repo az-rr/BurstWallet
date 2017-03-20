@@ -1,12 +1,10 @@
 {
-  "name": "BurstWallet",
-  "version": "1.0.0",
+  "name": "BurstWalletAIO",
+  "version": "1.1.0",
   "scripts": {
-    "pack": "electron-packager . BurstWallet --arch=x64 --out ./build --overwrite --icon=icons/icon.ico",
-    "createdir": "cd build/BurstWallet-win32-x64 && mkdir applications",
-    "copy": "xcopy \"%cd%/applications\" \"%cd%/build/BurstWallet-win32-x64/applications\" /s /e /y",
-    "rename": "cd build && rename BurstWallet-win32-x64 BurstWallet-x64-1.0.0",
-    "build": "npm run pack && npm run rename"
+    "pack": "electron-packager . BurstWalletAIO --arch=x64 --out ./build --overwrite --icon=icons/icon.ico",
+    "rename": "cd build && rename BurstWalletAIO-win32-x64 BurstWalletAIO-x64-1.1.0",
+    "zip": "cd build && \"C:/Program Files/7-Zip/7z.exe\" a -tzip BurstWalletAIO-x64-1.1.0.zip \"BurstWalletAIO-x64-1.1.0\""
   },
   "main": "app/main.js",
   "devDependencies": {

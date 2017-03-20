@@ -48,3 +48,7 @@ typings/
 # dotenv environment variables file
 .env
 applications/burstcoin-jminer-0.4.8-RELEASE/jminer.properties
+applications/localwallet/burst_db/burst.mv.db
+applications/localwallet/burst_db/burst.trace.db
+burst_db/burst.mv.db
+burst_db/burst.trace.db

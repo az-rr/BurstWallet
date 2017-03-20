@@ -17,8 +17,22 @@ var miningType = 'pool';
 
 //Wallet webview
 ipcRenderer.on('loadWalletView', function(event, url) {
+
 	$('#wallet_view').attr('src', url);
+
+	if(url == 'http://127.0.0.1:8125/index.html')
+	{
+		ipcRenderer.send('start-local-server');
+		// const webview = document.querySelector('webview')
+		// webview.reloadIgnoringCache();
+	}
 });
+
+function loadLocalWallet()
+{
+	console.log('reload');
+	$('#wallet_view').attr('src', 'http://127.0.0.1:8125');
+}
 
 $('#wallet_view').height($(window).height()-36);
 
@@ -34,8 +48,6 @@ getBurstStats();
 populateThreads();
 setCurrentPref();
 setInterval(getBurstStats, (60000 * 5));
-
-
 
 
 //footer
@@ -103,6 +115,22 @@ function setCurrentPref()
 	document.getElementById('show_power_block_save').checked = blockPower;
 
 }
+
+$('#wallet_view').on("did-fail-load", function () {
+    
+    if($('#wallet_view').attr('src') == 'http://127.0.0.1:8125/index.html' || $('#wallet_view').attr('src') == 'http://127.0.0.1:8125')
+    {
+    	console.log('Could not load the local wallet');
+    	ipcRenderer.send('start-local-server');
+    	$('#wallet_view').attr('src', 'offline.html');
+    	setTimeout(loadLocalWallet, 10000);
+    }
+    else
+    {
+    	console.log('Could not load the online wallet');
+    }
+
+});
 
 $('.save_pref').click(function(){
 

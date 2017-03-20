@@ -8,8 +8,14 @@ var powerSaveBlocker = electron.powerSaveBlocker;
 var path = require("path");
 const Store = require('./store.js');
 
-// var Tray = electron.Tray;
-// let tray = null;
+//local server
+var childProcess = require('child_process');
+var script_process;
+var localWalletPath =  path.join(__dirname, '/../', 'applications', 'localwallet', 'run_java_autodetect.bat');
+var killPath =  path.join(__dirname, '/../', 'applications', 'localwallet', 'stop.bat');
+var running = false;
+
+
 var appWindow;
 
 // instantiate our user preferences3
@@ -45,9 +51,7 @@ var template = [{
     {
         label: 'Exit',
         accelerator: 'Alt+F4',
-        click: () => {
-			app.quit();
-		}
+        click: stopServer
     }
     ]
 },
@@ -109,10 +113,8 @@ const selectionMenu = Menu.buildFromTemplate([
     {role: 'paste'},
     {type: 'separator'},
     {role: 'selectall'},
-  ])
+])
 
-
-  
 
 //load our prefs
 let { showDebug, blockPower } = store.get('prefs');
@@ -172,11 +174,6 @@ app.on('ready', function(){
 
     });
 
-  //   appWindow.on('minimize',function(event){
-		// event.preventDefault()
-		// appWindow.hide();
-  //   });
-
 	//save window dimentions
 	appWindow.on('resize', () => {
 		let { width, height } = appWindow.getBounds()
@@ -187,25 +184,20 @@ app.on('ready', function(){
 		selectionMenu.popup(appWindow);
 	})
 
-	// var iconPlain = path.join(__dirname, '/../icons/icon.ico');
-	// tray = new Tray(iconPlain);
-	// const contextMenu = Menu.buildFromTemplate([
-	// 	{
-	// 		label: 'Exit',
-	//         accelerator: 'Alt+F4',
-	//         click: () => {
-	// 			app.quit();
-	// 		}
-	// 	}
-	// ])
-	// tray.setToolTip('Burst Wallet')
-	// tray.setContextMenu(contextMenu)
+});
 
-	// tray.on('click', function (event) {
-	// 	event.preventDefault();
-	// 	appWindow.show();
-	// 	return false;
- //    });
+ipc.on('start-local-server', (event, arg) => {
+	startServer();
+})
+
+
+
+app.on('window-all-closed', function(event) {
+
+	event.preventDefault();
+
+	stopServer();
+	
 });
 
 
@@ -247,4 +239,70 @@ function changeReward (){
 	console.log(url + '/rewardassignment.html')
 	child.loadURL(url + '/rewardassignment.html');
 	child.setMenu(null);
+}
+
+
+//local server
+function startServer()
+{
+
+	if(running)
+	{
+		console.log('Local server already running');
+		return;
+	} 
+	
+	console.log('Starting local server');
+	script_process = childProcess.spawn('cmd.exe', ['/c', localWalletPath]);
+
+	script_process.stdout.on('data', callbackOut);
+	script_process.stderr.on('data', callbackError);
+	script_process.on('close', callbackClose);
+
+	running = true;
+
+}
+
+
+function stopServer()
+{
+
+	if(!running)
+	{
+		console.log('No local server to stop');
+		app.quit();
+	}
+	else
+	{
+		console.log('Send stop to the local server');
+
+		script_process.kill();
+		
+		console.log('Kill local server java process');
+
+		const exec = require('child_process').exec;
+		exec(killPath, (error, stdout, stderr) => {
+			if (error) {
+				console.error(`exec error: ${error}`);
+				return;
+			}
+		});
+	}
+		
+}
+
+function callbackOut(data)
+{
+	console.log('stdout: ' + data);
+}
+
+function callbackError(data)
+{
+	console.log('stderr: ' + data);
+}
+
+function callbackClose(code)
+{
+	console.log('child process exited with code ' + code);
+	app.quit();
 }

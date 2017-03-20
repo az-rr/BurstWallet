@@ -8348,3 +8348,18 @@ body{
      border-top-left-radius: 5px;
      border-top-right-radius: 5px;
 }
+
+/*.vertical-center {
+  min-height: 100%; 
+  min-height: 100vh; 
+
+  display: flex;
+  align-items: center;
+}*/
+
+.vertical-center {
+  position: absolute;
+  top: 50%;
+  left:50%;
+  transform: translate(-50%,-50%);
+}
